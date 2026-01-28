@@ -63,6 +63,4 @@ rag-qa-system/
 - Documents are stored in memory (cleared on restart)
 - Uses semantic search only (no LLM generation)
 
-## License
 
-MIT
