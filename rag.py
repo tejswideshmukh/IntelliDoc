@@ -79,11 +79,13 @@ class SimpleRAG:
         
         return len(chunks)
     
-    def search(self, query, top_k=3, distance_threshold=0.5):
+    def search(self, query, top_k=3, distance_threshold=0.7):
         """
         Search for relevant document chunks.
         distance_threshold: max cosine distance to consider a chunk relevant
                             (lower = stricter; typical range 0.0–1.0)
+        Always returns at least the top-1 result to avoid empty responses
+        when a document is loaded.
         """
         # Generate query embedding
         query_embedding = self.embedding_model.encode([query]).tolist()[0]
@@ -95,12 +97,17 @@ class SimpleRAG:
             include=["documents", "distances"]
         )
 
-        # Filter out chunks that are too dissimilar
-        relevant_chunks = []
-        if results['documents']:
-            for doc, dist in zip(results['documents'][0], results['distances'][0]):
-                if dist <= distance_threshold:
-                    relevant_chunks.append(doc)
+        if not results['documents']:
+            return []
+
+        docs = results['documents'][0]
+        dists = results['distances'][0]
+
+        # Always include the best match; apply threshold to the rest
+        relevant_chunks = [docs[0]]
+        for doc, dist in zip(docs[1:], dists[1:]):
+            if dist <= distance_threshold:
+                relevant_chunks.append(doc)
 
         return relevant_chunks
     
