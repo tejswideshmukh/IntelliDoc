@@ -100,14 +100,15 @@ class SimpleRAG:
 
         return relevant_chunks
     
-    def reset(self):
-        """Clear all stored documents"""
-        try:
-            self.client.delete_collection(name="documents")
-            self.collection = self.client.create_collection(
-    name="documents", metadata={"hnsw:space": "cosine"}
-)
-        except:
-            self.collection = self.client.create_collection(
-    name="documents", metadata={"hnsw:space": "cosine"}
-)
+def reset(self):
+    """Clear all stored documents"""
+    try:
+        self.client.delete_collection(name="documents")
+        self.collection = self.client.create_collection(
+            name="documents", metadata={"hnsw:space": "cosine"}
+        )
+    except:
+        self.collection = self.client.create_collection(
+            name="documents", metadata={"hnsw:space": "cosine"}
+        )
+
