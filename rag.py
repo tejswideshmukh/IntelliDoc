@@ -16,7 +16,10 @@ class SimpleRAG:
         
         # Initialize ChromaDB (in-memory for simplicity)
         self.client = chromadb.Client(Settings(anonymized_telemetry=False))
-        self.collection = self.client.get_or_create_collection(name="documents")
+        self.collection = self.client.get_or_create_collection(
+            name="documents",
+            metadata={"hnsw:space": "cosine"}
+        )
         
     def chunk_document(self, text, chunk_size=500, overlap=50):
         """
@@ -76,11 +79,11 @@ class SimpleRAG:
         
         return len(chunks)
     
-    def search(self, query, top_k=3, distance_threshold=1.5):
+    def search(self, query, top_k=3, distance_threshold=0.5):
         """
         Search for relevant document chunks.
-        distance_threshold: max L2 distance to consider a chunk relevant
-                            (lower = stricter; typical range 0.0–2.0)
+        distance_threshold: max cosine distance to consider a chunk relevant
+                            (lower = stricter; typical range 0.0–1.0)
         """
         # Generate query embedding
         query_embedding = self.embedding_model.encode([query]).tolist()[0]
@@ -105,6 +108,10 @@ class SimpleRAG:
         """Clear all stored documents"""
         try:
             self.client.delete_collection(name="documents")
-            self.collection = self.client.create_collection(name="documents")
+            self.collection = self.client.create_collection(
+                name="documents", metadata={"hnsw:space": "cosine"}
+            )
         except:
-            self.collection = self.client.create_collection(name="documents")
+            self.collection = self.client.create_collection(
+                name="documents", metadata={"hnsw:space": "cosine"}
+            )
