@@ -116,7 +116,7 @@ def main():
         if not relevant_chunks:
             answer = "I couldn't find any relevant information. Please upload a document first."
         else:
-            answer = rag.generate_answer(question, relevant_chunks)
+            answer = rag.generate_answer(question, relevant_chunks,api_key='gsk_Jk9k4qsvY0cQAtn276UXWGdyb3FYhphWGBDX1ge2IVCrZL4EHNB')
             with st.expander("View source chunks"):
                 for i, chunk in enumerate(relevant_chunks, 1):
                     st.markdown(f"**{i}.** {chunk}")
