@@ -6,6 +6,7 @@ Handles document processing, embeddings, and question answering
 from sentence_transformers import SentenceTransformer
 import chromadb
 from chromadb.config import Settings
+from groq import Groq
 import os
 
 
@@ -106,6 +107,18 @@ class SimpleRAG:
 
         return relevant_chunks
     
+    def generate_answer(self, query, relevant_chunks, api_key):
+        context = "\n\n".join(relevant_chunks)
+        client = Groq(api_key=api_key)
+        response = client.chat.completions.create(
+            model="llama3-8b-8192",
+            messages=[
+                {"role": "system", "content": "Answer the question using only the provided context. Be concise and direct."},
+                {"role": "user", "content": f"Context:\n{context}\n\nQuestion: {query}"}
+            ]
+        )
+        return response.choices[0].message.content
+
     def reset(self):
         """Clear all stored documents"""
         try:
