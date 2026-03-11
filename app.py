@@ -62,28 +62,31 @@ def main():
         )
         
         if uploaded_file is not None:
-            # Extract text based on file type
-            if uploaded_file.type == "application/pdf":
-                text = extract_text_from_pdf(uploaded_file)
-            elif uploaded_file.type == "text/plain":
-                text = extract_text_from_txt(uploaded_file)
-            else:
-                text = ""
-            
-            if text.strip():
-                # Add document to RAG system
-                doc_id = uploaded_file.name
-                num_chunks = rag.add_document(text, doc_id)
-                
-                st.success(f"✅ Document loaded! ({num_chunks} chunks created)")
-                st.info(f"📄 {uploaded_file.name}")
-            else:
-                st.error("Could not extract text from file")
+            doc_id = uploaded_file.name
+
+            # Only process if this file hasn't been loaded yet this session
+            if st.session_state.get("loaded_doc") != doc_id:
+                if uploaded_file.type == "application/pdf":
+                    text = extract_text_from_pdf(uploaded_file)
+                elif uploaded_file.type == "text/plain":
+                    text = extract_text_from_txt(uploaded_file)
+                else:
+                    text = ""
+
+                if text.strip():
+                    num_chunks = rag.add_document(text, doc_id)
+                    st.session_state["loaded_doc"] = doc_id
+                    st.success(f"✅ Document loaded! ({num_chunks} chunks created)")
+                else:
+                    st.error("Could not extract text from file")
+
+            st.info(f"📄 {uploaded_file.name}")
         
         st.divider()
         
         if st.button("🗑️ Clear All Documents"):
             rag.reset()
+            st.session_state.pop("loaded_doc", None)
             st.success("Documents cleared!")
             st.rerun()
     
