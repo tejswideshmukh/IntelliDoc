@@ -76,7 +76,7 @@ class SimpleRAG:
         
         return len(chunks)
     
-    def search(self, query, top_k=3, distance_threshold=1.0):
+    def search(self, query, top_k=3, distance_threshold=1.5):
         """
         Search for relevant document chunks.
         distance_threshold: max L2 distance to consider a chunk relevant
