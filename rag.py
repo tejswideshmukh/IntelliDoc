@@ -16,12 +16,9 @@ class SimpleRAG:
         
         # Initialize ChromaDB (in-memory for simplicity)
         self.client = chromadb.Client(Settings(anonymized_telemetry=False))
-        self.collection = self.client.get_or_create_collection(
-            name="documents",
-            metadata={"hnsw:space": "cosine"}
-        )
+        self.collection = self.client.get_or_create_collection(name="documents", metadata={"hnsw:space": "cosine"})
         
-    def chunk_document(self, text, chunk_size=500, overlap=50):
+    def chunk_document(self, text, chunk_size=1000, overlap=200):
         """
         Split document into chunks respecting paragraph boundaries.
         Falls back to character-based splitting for oversized paragraphs.
@@ -79,13 +76,11 @@ class SimpleRAG:
         
         return len(chunks)
     
-    def search(self, query, top_k=3, distance_threshold=0.7):
+
+    def search(self, query, top_k=3, distance_threshold=0.9):
         """
         Search for relevant document chunks.
-        distance_threshold: max cosine distance to consider a chunk relevant
-                            (lower = stricter; typical range 0.0–1.0)
-        Always returns at least the top-1 result to avoid empty responses
-        when a document is loaded.
+        distance_threshold: cosine similarity ,
         """
         # Generate query embedding
         query_embedding = self.embedding_model.encode([query]).tolist()[0]
