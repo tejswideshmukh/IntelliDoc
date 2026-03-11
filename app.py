@@ -110,13 +110,17 @@ def main():
             st.markdown(question)
         
         # Search for relevant chunks
-        with st.spinner("Searching documents..."):
+        with st.spinner("Searching and generating answer..."):
             relevant_chunks = rag.search(question, top_k=3)
-        
-        # Format chunks as answer
-        answer = format_answer(relevant_chunks)
-        
-        # Add assistant response to chat
+
+        if not relevant_chunks:
+            answer = "I couldn't find any relevant information. Please upload a document first."
+        else:
+            answer = rag.generate_answer(question, relevant_chunks)
+            with st.expander("View source chunks"):
+                for i, chunk in enumerate(relevant_chunks, 1):
+                    st.markdown(f"**{i}.** {chunk}")
+                    st.divider()
         st.session_state.messages.append({"role": "assistant", "content": answer})
         with st.chat_message("assistant"):
             st.markdown(answer)
