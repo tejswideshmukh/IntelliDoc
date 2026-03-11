@@ -18,7 +18,7 @@ class SimpleRAG:
         self.client = chromadb.Client(Settings(anonymized_telemetry=False))
         self.collection = self.client.get_or_create_collection(name="documents")
         
-    def chunk_document(self, text, chunk_size=500, overlap=50):
+    def chunk_document(self, text, chunk_size=1000, overlap=200):
         """
         Split document into overlapping chunks
         chunk_size: number of characters per chunk
