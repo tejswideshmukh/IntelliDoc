@@ -20,22 +20,37 @@ class SimpleRAG:
         
     def chunk_document(self, text, chunk_size=1000, overlap=200):
         """
-        Split document into overlapping chunks
-        chunk_size: number of characters per chunk
-        overlap: number of characters to overlap between chunks
+        Split document into chunks respecting paragraph boundaries.
+        Falls back to character-based splitting for oversized paragraphs.
+        chunk_size: max characters per chunk
+        overlap: characters to overlap when splitting large paragraphs
         """
+        paragraphs = [p.strip() for p in text.split('\n\n') if p.strip()]
+
         chunks = []
-        start = 0
-        
-        while start < len(text):
-            end = start + chunk_size
-            chunk = text[start:end].strip()
-            
-            if chunk:  # Skip empty chunks
-                chunks.append(chunk)
-            
-            start = end - overlap  # Overlap for context
-            
+        current_chunk = ""
+
+        for para in paragraphs:
+            if len(current_chunk) + len(para) + 2 <= chunk_size:
+                current_chunk = (current_chunk + "\n\n" + para).strip()
+            else:
+                if current_chunk:
+                    chunks.append(current_chunk)
+                if len(para) > chunk_size:
+                    # Paragraph too large — split by characters with overlap
+                    start = 0
+                    while start < len(para):
+                        chunk = para[start:start + chunk_size].strip()
+                        if chunk:
+                            chunks.append(chunk)
+                        start += chunk_size - overlap
+                    current_chunk = ""
+                else:
+                    current_chunk = para
+
+        if current_chunk:
+            chunks.append(current_chunk)
+
         return chunks
     
     def add_document(self, text, doc_id):
@@ -61,20 +76,29 @@ class SimpleRAG:
         
         return len(chunks)
     
-    def search(self, query, top_k=3):
-        """Search for relevant document chunks"""
+    def search(self, query, top_k=3, distance_threshold=1.0):
+        """
+        Search for relevant document chunks.
+        distance_threshold: max L2 distance to consider a chunk relevant
+                            (lower = stricter; typical range 0.0–2.0)
+        """
         # Generate query embedding
         query_embedding = self.embedding_model.encode([query]).tolist()[0]
-        
-        # Search in ChromaDB
+
+        # Search in ChromaDB, also fetch distances
         results = self.collection.query(
             query_embeddings=[query_embedding],
-            n_results=top_k
+            n_results=top_k,
+            include=["documents", "distances"]
         )
-        
-        # Extract relevant chunks
-        relevant_chunks = results['documents'][0] if results['documents'] else []
-        
+
+        # Filter out chunks that are too dissimilar
+        relevant_chunks = []
+        if results['documents']:
+            for doc, dist in zip(results['documents'][0], results['distances'][0]):
+                if dist <= distance_threshold:
+                    relevant_chunks.append(doc)
+
         return relevant_chunks
     
     def reset(self):
