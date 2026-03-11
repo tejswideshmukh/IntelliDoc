@@ -115,7 +115,7 @@ def main():
         if not relevant_chunks:
             answer = "I couldn't find any relevant information. Please upload a document first."
         else:
-            answer = rag.generate_answer(question, relevant_chunks, api_key="your_groq_api_key_here")
+            answer = rag.generate_answer(question, relevant_chunks, api_key=st.secrets["GROQ_API_KEY"])
             with st.expander("View source chunks"):
                 for i, chunk in enumerate(relevant_chunks, 1):
                     st.markdown(f"**{i}.** {chunk}")
