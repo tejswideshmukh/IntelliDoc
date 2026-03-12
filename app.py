@@ -52,18 +52,11 @@ def main():
     # Initialize RAG system
     rag = load_rag_system()
     
-    # Sidebar for API key + document upload
+    # Load API key from secrets only
+    groq_api_key = st.secrets.get("GROQ_API_KEY", "")
+
+    # Sidebar for document upload
     with st.sidebar:
-        st.header("🔑 Groq API Key")
-        # Prefer key from Streamlit secrets, fall back to user input
-        default_key = st.secrets.get("GROQ_API_KEY", "") if hasattr(st, "secrets") else ""
-        groq_api_key = st.text_input(
-            "Enter your Groq API key",
-            value=default_key,
-            type="password",
-            help="Get a free key at https://console.groq.com",
-        )
-        st.divider()
         st.header("📄 Upload Document")
         
         uploaded_file = st.file_uploader(
