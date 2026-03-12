@@ -52,9 +52,6 @@ def main():
     # Initialize RAG system
     rag = load_rag_system()
     
-    # Load API key from secrets only
-    groq_api_key = st.secrets.get("GROQ_API_KEY", "")
-
     # Sidebar for document upload
     with st.sidebar:
         st.header("📄 Upload Document")
@@ -119,11 +116,9 @@ def main():
 
         if not relevant_chunks:
             answer = "I couldn't find any relevant information. Please upload a document first."
-        elif not groq_api_key:
-            answer = "Please enter your Groq API key in the sidebar to generate answers."
         else:
             try:
-                answer = rag.generate_answer(question, relevant_chunks, api_key=groq_api_key)
+                answer = rag.generate_answer(question, relevant_chunks)
             except groq.AuthenticationError:
                 answer = "Groq API key is invalid or expired. Please update GROQ_API_KEY in your Streamlit secrets."
             except groq.APIError as e:
