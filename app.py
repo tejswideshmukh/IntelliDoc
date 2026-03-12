@@ -7,6 +7,7 @@ import streamlit as st
 from rag import SimpleRAG
 import PyPDF2
 import io
+from groq import AuthenticationError as GroqAuthError
 
 
 # Initialize RAG system (cached to avoid reloading)
@@ -51,18 +52,11 @@ def main():
     # Initialize RAG system
     rag = load_rag_system()
     
-    # Sidebar for API key + document upload
+    # Load API key from secrets only
+    groq_api_key = st.secrets.get("GROQ_API_KEY", "")
+
+    # Sidebar for document upload
     with st.sidebar:
-        st.header("🔑 Groq API Key")
-        # Prefer key from Streamlit secrets, fall back to user input
-        default_key = st.secrets.get("GROQ_API_KEY", "") if hasattr(st, "secrets") else ""
-        groq_api_key = st.text_input(
-            "Enter your Groq API key",
-            value=default_key,
-            type="password",
-            help="Get a free key at https://console.groq.com",
-        )
-        st.divider()
         st.header("📄 Upload Document")
         
         uploaded_file = st.file_uploader(
@@ -128,11 +122,15 @@ def main():
         elif not groq_api_key:
             answer = "Please enter your Groq API key in the sidebar to generate answers."
         else:
-            answer = rag.generate_answer(question, relevant_chunks, api_key=groq_api_key)
-            with st.expander("View source chunks"):
-                for i, chunk in enumerate(relevant_chunks, 1):
-                    st.markdown(f"**{i}.** {chunk}")
-                    st.divider()
+            try:
+                answer = rag.generate_answer(question, relevant_chunks, api_key=groq_api_key)
+            except GroqAuthError:
+                answer = "Invalid or expired Groq API key. Please enter a valid key in the sidebar (get one free at https://console.groq.com)."
+            else:
+                with st.expander("View source chunks"):
+                    for i, chunk in enumerate(relevant_chunks, 1):
+                        st.markdown(f"**{i}.** {chunk}")
+                        st.divider()
         st.session_state.messages.append({"role": "assistant", "content": answer})
         with st.chat_message("assistant"):
             st.markdown(answer)
