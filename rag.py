@@ -110,7 +110,7 @@ class SimpleRAG:
         context = "\n\n".join(relevant_chunks)
         client = Groq(api_key=api_key)
         response = client.chat.completions.create(
-            model="llama3-8b-8192",
+            model="llama-3.1-8b-instant",
             messages=[
                 {"role": "system", "content": "Answer the question using only the provided context. Be concise."},
                 {"role": "user", "content": f"Context:\n{context}\n\nQuestion: {query}"}
