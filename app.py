@@ -45,114 +45,159 @@ def format_answer(relevant_chunks):
 def main():
     st.set_page_config(page_title="IntelliDoc", page_icon="📖", layout="centered")
 
-    # ── Library / parchment theme ──────────────────────────────────────────
+    # ── Dark & sleek theme — amber gold accents ────────────────────────────
     st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Lora:ital,wght@0,400;0,500;1,400&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@700&display=swap');
 
-    /* Main background — warm parchment */
-    .stApp {
-        background-color: #f5efe0;
-        font-family: 'Lora', Georgia, serif;
+    /* Base */
+    html, body, [class*="css"], .stApp {
+        background-color: #0d0d0d !important;
+        color: #e8e8e8 !important;
+        font-family: 'Inter', sans-serif !important;
     }
 
-    /* Sidebar — dark library wood */
+    /* Sidebar */
     [data-testid="stSidebar"] {
-        background-color: #2c1f0e;
+        background-color: #111111 !important;
+        border-right: 1px solid #1f1f1f;
     }
     [data-testid="stSidebar"] * {
-        color: #e8d5b0 !important;
+        color: #cccccc !important;
     }
-    [data-testid="stSidebar"] h1,
-    [data-testid="stSidebar"] h2,
     [data-testid="stSidebar"] h3 {
-        font-family: 'Playfair Display', serif;
-        color: #f0c97f !important;
-        border-bottom: 1px solid #5a3e1b;
-        padding-bottom: 6px;
+        color: #f0a500 !important;
+        font-family: 'Inter', sans-serif !important;
+        font-weight: 600 !important;
+        font-size: 0.85rem !important;
+        letter-spacing: 0.12em !important;
+        text-transform: uppercase !important;
+        border-bottom: 1px solid #222 !important;
+        padding-bottom: 8px !important;
     }
 
-    /* Sidebar buttons */
+    /* Sidebar button */
     [data-testid="stSidebar"] .stButton > button {
-        background-color: #5a3e1b;
-        color: #f5efe0 !important;
-        border: 1px solid #8b6134;
-        border-radius: 6px;
-        font-family: 'Lora', serif;
-        width: 100%;
+        background-color: transparent !important;
+        color: #888 !important;
+        border: 1px solid #2a2a2a !important;
+        border-radius: 6px !important;
+        font-size: 0.82rem !important;
+        width: 100% !important;
+        transition: all 0.2s;
     }
     [data-testid="stSidebar"] .stButton > button:hover {
-        background-color: #7a5530;
+        border-color: #f0a500 !important;
+        color: #f0a500 !important;
     }
+
+    /* Hide default streamlit header/footer */
+    #MainMenu, footer, header {visibility: hidden;}
 
     /* Main title */
-    h1 {
-        font-family: 'Playfair Display', serif !important;
-        color: #3b1f0a !important;
-        font-size: 2.6rem !important;
+    .intellidoc-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 2.8rem;
+        font-weight: 700;
+        color: #ffffff;
         letter-spacing: 1px;
+        margin-bottom: 0;
+    }
+    .intellidoc-title span {
+        color: #f0a500;
+    }
+    .intellidoc-tagline {
+        color: #555;
+        font-size: 0.9rem;
+        font-weight: 300;
+        letter-spacing: 0.05em;
+        margin-top: 4px;
+        margin-bottom: 24px;
     }
 
-    /* Section headers */
-    h2, h3 {
-        font-family: 'Playfair Display', serif !important;
-        color: #5a3e1b !important;
+    /* Gold divider */
+    .gold-divider {
+        border: none;
+        border-top: 1px solid #f0a500;
+        opacity: 0.3;
+        margin: 0 0 28px 0;
     }
 
-    /* Tagline text */
-    .tagline {
-        color: #7a5530;
-        font-family: 'Lora', serif;
-        font-style: italic;
-        font-size: 1.05rem;
-        margin-top: -12px;
-        margin-bottom: 20px;
-    }
-
-    /* Divider */
-    hr {
-        border-color: #c9a87c;
+    /* Section label */
+    .section-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #f0a500;
+        margin-bottom: 12px;
     }
 
     /* Chat messages */
     [data-testid="stChatMessage"] {
-        background-color: #fdf6e3;
-        border: 1px solid #d4b896;
-        border-radius: 10px;
-        padding: 4px 8px;
-        margin-bottom: 8px;
+        background-color: #141414 !important;
+        border: 1px solid #1f1f1f !important;
+        border-radius: 10px !important;
+        color: #e8e8e8 !important;
+    }
+    [data-testid="stChatMessage"] p,
+    [data-testid="stChatMessage"] li,
+    [data-testid="stChatMessage"] span {
+        color: #e8e8e8 !important;
     }
 
-    /* Chat input box */
+    /* Chat input */
+    [data-testid="stChatInput"] {
+        background-color: #111 !important;
+        border-top: 1px solid #1f1f1f !important;
+    }
     [data-testid="stChatInput"] textarea {
-        background-color: #fdf6e3 !important;
-        border: 1px solid #c9a87c !important;
-        font-family: 'Lora', serif !important;
-        color: #3b1f0a !important;
-        border-radius: 8px;
+        background-color: #1a1a1a !important;
+        color: #e8e8e8 !important;
+        border: 1px solid #2a2a2a !important;
+        border-radius: 8px !important;
+        font-family: 'Inter', sans-serif !important;
+    }
+    [data-testid="stChatInput"] textarea:focus {
+        border-color: #f0a500 !important;
+        box-shadow: 0 0 0 1px #f0a50033 !important;
     }
 
     /* Expander */
     [data-testid="stExpander"] {
-        background-color: #fdf6e3;
-        border: 1px solid #c9a87c;
-        border-radius: 8px;
+        background-color: #111 !important;
+        border: 1px solid #1f1f1f !important;
+        border-radius: 8px !important;
     }
+    [data-testid="stExpander"] summary {
+        color: #888 !important;
+        font-size: 0.82rem !important;
+    }
+
+    /* Divider */
+    hr { border-color: #1f1f1f !important; }
 
     /* File uploader */
     [data-testid="stFileUploader"] {
-        background-color: #3d2b10;
-        border: 1px dashed #8b6134;
-        border-radius: 8px;
-        padding: 4px;
+        background-color: #141414 !important;
+        border: 1px dashed #2a2a2a !important;
+        border-radius: 8px !important;
+    }
+
+    /* Success / info / error */
+    [data-testid="stAlert"] {
+        border-radius: 8px !important;
     }
     </style>
     """, unsafe_allow_html=True)
 
     # ── Header ─────────────────────────────────────────────────────────────
-    st.markdown("# 📖 IntelliDoc")
-    st.markdown('<p class="tagline">Your documents, answered intelligently.</p>', unsafe_allow_html=True)
-    st.divider()
+    st.markdown(
+        '<p class="intellidoc-title">Intelli<span>Doc</span></p>'
+        '<p class="intellidoc-tagline">Your documents, answered intelligently.</p>',
+        unsafe_allow_html=True
+    )
+    st.markdown('<hr class="gold-divider">', unsafe_allow_html=True)
 
     # Initialize RAG system
     rag = load_rag_system()
@@ -189,17 +234,17 @@ def main():
 
         st.divider()
 
-        if st.button("Clear Library"):
+        if st.button("Clear Document"):
             rag.reset()
             st.session_state.pop("loaded_doc", None)
-            st.success("Library cleared.")
+            st.success("Cleared.")
             st.rerun()
 
         st.markdown("---")
-        st.markdown('<p style="font-size:0.75rem; color:#8b6134; font-style:italic;">IntelliDoc uses AI to retrieve and answer from your uploaded documents.</p>', unsafe_allow_html=True)
+        st.markdown('<p style="font-size:0.72rem;color:#333;font-weight:300;">Powered by Groq · llama-3.1-8b</p>', unsafe_allow_html=True)
 
     # ── Chat area ──────────────────────────────────────────────────────────
-    st.markdown("### Ask IntelliDoc")
+    st.markdown('<p class="section-label">Ask IntelliDoc</p>', unsafe_allow_html=True)
 
     if "messages" not in st.session_state:
         st.session_state.messages = []
