@@ -51,8 +51,18 @@ def main():
     # Initialize RAG system
     rag = load_rag_system()
     
-    # Sidebar for document upload
+    # Sidebar for API key + document upload
     with st.sidebar:
+        st.header("🔑 Groq API Key")
+        # Prefer key from Streamlit secrets, fall back to user input
+        default_key = st.secrets.get("GROQ_API_KEY", "") if hasattr(st, "secrets") else ""
+        groq_api_key = st.text_input(
+            "Enter your Groq API key",
+            value=default_key,
+            type="password",
+            help="Get a free key at https://console.groq.com",
+        )
+        st.divider()
         st.header("📄 Upload Document")
         
         uploaded_file = st.file_uploader(
@@ -115,8 +125,10 @@ def main():
 
         if not relevant_chunks:
             answer = "I couldn't find any relevant information. Please upload a document first."
+        elif not groq_api_key:
+            answer = "Please enter your Groq API key in the sidebar to generate answers."
         else:
-            answer = rag.generate_answer(question, relevant_chunks,api_key='gsk_Jk9k4qsvY0cQAtn276UXWGdyb3FYhphWGBDX1ge2IVCrZL4EHNB')
+            answer = rag.generate_answer(question, relevant_chunks, api_key=groq_api_key)
             with st.expander("View source chunks"):
                 for i, chunk in enumerate(relevant_chunks, 1):
                     st.markdown(f"**{i}.** {chunk}")
