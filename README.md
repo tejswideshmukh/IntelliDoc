@@ -3,7 +3,7 @@
 A simple semantic search system for asking questions about uploaded documents. Uses vector embeddings and semantic search to find relevant document chunks. Built with open-source models and designed to run on CPU.
 
 ## Demo 
-![IntelliDoc Demo](Intellidoc_demo.mp4)
+![Demo](intellidoc_gif.gif)
 ## Features
 
 - 📄 Upload PDF and TXT documents
