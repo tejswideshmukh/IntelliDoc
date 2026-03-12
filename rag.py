@@ -108,7 +108,7 @@ class SimpleRAG:
         
     def generate_answer(self, query, relevant_chunks, api_key):
         context = "\n\n".join(relevant_chunks)
-        client = Groq(api_key="gsk_Jk9k4qsvY0cQAtn276UXWGdyb3FYhphWGBDX1ge2IVCrZL4EHNB")
+        client = Groq(api_key=api_key)
         response = client.chat.completions.create(
             model="llama3-8b-8192",
             messages=[
