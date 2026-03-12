@@ -7,7 +7,7 @@ import streamlit as st
 from rag import SimpleRAG
 import PyPDF2
 import io
-from groq import AuthenticationError as GroqAuthError
+import groq
 
 
 # Initialize RAG system (cached to avoid reloading)
@@ -124,8 +124,10 @@ def main():
         else:
             try:
                 answer = rag.generate_answer(question, relevant_chunks, api_key=groq_api_key)
-            except GroqAuthError:
-                answer = "Invalid or expired Groq API key. Please enter a valid key in the sidebar (get one free at https://console.groq.com)."
+            except groq.AuthenticationError:
+                answer = "Groq API key is invalid or expired. Please update GROQ_API_KEY in your Streamlit secrets."
+            except groq.APIError as e:
+                answer = f"Groq API error: {type(e).__name__}: {e}"
             else:
                 with st.expander("View source chunks"):
                     for i, chunk in enumerate(relevant_chunks, 1):
